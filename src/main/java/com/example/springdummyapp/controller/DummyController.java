@@ -32,12 +32,13 @@ public class DummyController {
     @GetMapping("workerName2/{threadName}")
     @ResponseStatus(HttpStatus.OK)
     public String getWorkerName2(@PathVariable String threadName) {
-        return threadService.getThreadWorkerNameByThreadName(threadName);
+        return threadService.getThreadWorkerNameByThreadName2(threadName);
     }
 
     @PostMapping("/create-thread")
     @ResponseStatus(HttpStatus.CREATED)
     public String createThread(@RequestBody CreateThreadRequest request) {
+
 
         return "success!";
     }
