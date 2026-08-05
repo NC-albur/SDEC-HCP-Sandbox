@@ -35,6 +35,11 @@
         <sonar.host.url>http://localhost:9000</sonar.host.url>
         <sonar.token>squ_6d5ef3f150da5cbf5e40e9303194da9c7dd5a6d9</sonar.token> <!-- localhost 'test' token -->
 
+        <!-- Flyway properties -->
+        <flyway.url>jdbc:postgresql://localhost:5432/postgres</flyway.url>
+        <flyway.user>postgres</flyway.user>
+        <flyway.password>password</flyway.password>
+
     </properties>
     <dependencies>
         <dependency>
@@ -113,6 +118,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>12.10.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -194,6 +214,11 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>12.11.0</version>
+            </plugin>
         </plugins>
     </build>
 
