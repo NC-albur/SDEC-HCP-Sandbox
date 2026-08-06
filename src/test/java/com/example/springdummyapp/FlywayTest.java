@@ -2,7 +2,6 @@ package com.example.springdummyapp;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,8 +29,7 @@ public class FlywayTest extends PostgresBaseTest {
     public void test() {
 
         List<String> tablesBeforeMigration = jdbcTemplate.queryForList(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'", String.class
-        );
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'", String.class);
 
         assertEquals(0, tablesBeforeMigration.size());
 
@@ -39,8 +37,7 @@ public class FlywayTest extends PostgresBaseTest {
 
         Integer threadCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM THREAD", Integer.class);
         List<String> tablesAfterMigration = jdbcTemplate.queryForList(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'", String.class
-        );
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'", String.class);
 
         assertEquals(3, tablesAfterMigration.size());
 

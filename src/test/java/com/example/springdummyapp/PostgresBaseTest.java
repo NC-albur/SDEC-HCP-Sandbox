@@ -30,7 +30,6 @@ public abstract class PostgresBaseTest {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-
     @AfterAll
     static void tearDownContainer() {
         if (postgres != null) {
