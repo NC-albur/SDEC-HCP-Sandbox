@@ -36,7 +36,7 @@
         <sonar.token>squ_6d5ef3f150da5cbf5e40e9303194da9c7dd5a6d9</sonar.token> <!-- localhost 'test' token -->
 
         <!-- Flyway properties -->
-        <flyway.url>jdbc:postgresql://localhost:5432/postgres</flyway.url>
+        <flyway.url>jdbc:postgresql://localhost:5432/testdb</flyway.url>
         <flyway.user>postgres</flyway.user>
         <flyway.password>password</flyway.password>
 

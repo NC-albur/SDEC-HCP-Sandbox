@@ -1,20 +1,17 @@
 version: '3.8'
 
 services:
-  localstack:
-    image: localstack/localstack:2.0.2
-    container_name: localstack-rds
-    ports:
-      - "4566:4566"
-      - "5432:5432"
+  postgres:
+    image: postgres:18-alpine
+    container_name: postgres_container
     environment:
-      SERVICES: rds
-      DEBUG: 1
-      DOCKER_HOST: unix:///var/run/docker.sock
-    volumes:
-      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
-networks:
-  default:
-    name: localstack-network
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
