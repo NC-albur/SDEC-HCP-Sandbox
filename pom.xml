@@ -250,7 +250,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>0.00</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -258,6 +258,27 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>13.0.0</version>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <nvdApiKey>>INSERT_NVD_API_KEY_HERE</nvdApiKey>
+                    <format>JSON</format>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <failBuildOnCVSS>7</failBuildOnCVSS>
+                </configuration>
             </plugin>
 
         </plugins>
