@@ -2,10 +2,12 @@ package com.example.springdummyapp.controller;
 
 import com.example.springdummyapp.model.dao.Thread;
 import com.example.springdummyapp.model.request.CreateThreadRequest;
+import com.example.springdummyapp.model.response.CreateThreadSuccessResponse;
 import com.example.springdummyapp.service.ThreadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
 
 import java.util.regex.Pattern;
 
@@ -37,10 +39,18 @@ public class DummyController {
 
     @PostMapping("/create-thread")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createThread(@RequestBody CreateThreadRequest request) {
-
-
-        return "success!";
+    public CreateThreadSuccessResponse createThread(@RequestBody CreateThreadRequest request) {
+        LocalDateTime createdTimeStamp = LocalDateTime.now();
+        LocalDateTime threadExpiryDate = createdTimeStamp.plusDays(30);
+        return new CreateThreadSuccessResponse(
+                request.id(),
+                request.threadReference(),
+                request.status(),
+                createdTimeStamp,
+                createdTimeStamp,
+                threadExpiryDate,
+                request.associatedCaseReference()
+        );
     }
 
 
