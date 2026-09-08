@@ -1,14 +1,17 @@
 package com.example.springdummyapp.controller;
 
 import com.example.springdummyapp.model.dao.Thread;
+import com.example.springdummyapp.model.dao.ThreadReference;
 import com.example.springdummyapp.model.request.CreateThreadRequest;
 import com.example.springdummyapp.model.response.CreateThreadSuccessResponse;
 import com.example.springdummyapp.service.ThreadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
+import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 @RestController
@@ -18,11 +21,27 @@ public class DummyController {
 
     private final ThreadService threadService;
 
-    @GetMapping("/{id}")
+//    @GetMapping("/{id}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public String dummyGet(@PathVariable Long id) {
+//        Thread thread = threadService.getThreadById(id);
+//        return thread.getThreadName();
+//    }
+
+    @GetMapping("/{threadReference}")
     @ResponseStatus(HttpStatus.OK)
-    public String dummyGet(@PathVariable Long id) {
-        Thread thread = threadService.getThreadById(id);
-        return thread.getThreadName();
+    public ThreadReference getThreadReference(@PathVariable String threadReference) {
+        ThreadReference reference = threadService.getThreadReferenceByThreadReference(threadReference);
+        if (reference == null){
+            throw new NoSuchElementException("Cannot find this thread");
+        }
+        return reference;
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public String handleNoSuchElementException(Exception e) {
+        return "Cannot find this thread";
     }
 
     @GetMapping("workerName/{threadName}")
@@ -39,18 +58,48 @@ public class DummyController {
 
     @PostMapping("/create-thread")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateThreadSuccessResponse createThread(@RequestBody CreateThreadRequest request) {
+    public String createThread(@RequestBody CreateThreadRequest request) {
+        //See if thread already exists
+        ThreadReference reference = threadService.getThreadReferenceByThreadReference(request.threadReference());
+        if (reference != null) {
+            throw new DuplicateKeyException("Thread already exists");
+        }
         LocalDateTime createdTimeStamp = LocalDateTime.now();
         LocalDateTime threadExpiryDate = createdTimeStamp.plusDays(30);
-        return new CreateThreadSuccessResponse(
-                request.id(),
-                request.threadReference(),
-                request.status(),
-                createdTimeStamp,
-                createdTimeStamp,
-                threadExpiryDate,
-                request.associatedCaseReference()
-        );
+        ThreadReference createThreadReference = new ThreadReference();
+        createThreadReference.setThreadReference(request.threadReference());
+        createThreadReference.setStatus(request.status());
+        createThreadReference.setCreatedTimeStamp(createdTimeStamp);
+        createThreadReference.setLastUpdatedTimeStamp(createdTimeStamp);
+        createThreadReference.setThreadExpiryDate(threadExpiryDate);
+        createThreadReference.setAssociatedCaseReference(request.associatedCaseReference());
+
+        return threadService.saveThreadSuccessResponse(createThreadReference);
+
+
+    }
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleDuplicateKeyException(Exception e) {
+        return "Thread already exists";
+    }
+    @PutMapping("/UpdateThread/{threadReference}")
+    @ResponseStatus(HttpStatus.OK)
+    public String updateThread(@PathVariable String threadReference,@RequestBody CreateThreadRequest request){
+
+        ThreadReference toUpdate = threadService.getThreadReferenceByThreadReference(threadReference);
+        toUpdate.setLastUpdatedTimeStamp(LocalDateTime.now());
+        //Handle Partial Update
+        if(request.threadReference()!=null){
+            toUpdate.setThreadReference(request.threadReference());
+        }
+        if(request.status()!=null){
+            toUpdate.setStatus(request.status());
+        }
+        if(request.associatedCaseReference()!=null) {
+            toUpdate.setAssociatedCaseReference(request.associatedCaseReference());
+        }
+        return threadService.saveThreadSuccessResponse(toUpdate)+"  updated";
     }
 
 
