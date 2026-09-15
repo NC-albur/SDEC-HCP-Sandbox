@@ -8,12 +8,15 @@ import com.example.springdummyapp.repository.ThreadRepository;
 import com.example.springdummyapp.repository.ThreadWorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ThreadService {
+
+    private final EventStreamService eventStreamService;
 
     private final ThreadRepository threadRepository;
     private final ThreadWorkerRepository threadWorkerRepository;
@@ -28,8 +31,10 @@ public class ThreadService {
                 .getFirst();
     }
 
-    public String saveThreadSuccessResponse (ThreadReference toAdd){
+    public String saveThreadSuccessResponse (ThreadReference toAdd) {
         threadReferenceRepository.save(toAdd);
+        ObjectMapper mapper = new ObjectMapper();
+        eventStreamService.SendMessageToTopic(mapper.writeValueAsString(toAdd));
         return toAdd.getThreadReference();
     }
 
@@ -42,5 +47,9 @@ public class ThreadService {
                 .stream()
                 .map(ThreadWorker::getCaseWorkerName)
                 .collect(Collectors.joining());
+    }
+
+    public String getMessageFromSubscription(){
+        return eventStreamService.GetMessageFromSubscription();
     }
 }
