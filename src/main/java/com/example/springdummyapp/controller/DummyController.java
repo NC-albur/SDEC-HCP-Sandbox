@@ -106,7 +106,7 @@ public class DummyController {
     public String getEventStreamMessage(){
         String message = threadService.getMessageFromSubscription();
         if (Objects.equals(message, "")){
-            throw new StringIndexOutOfBoundsException("This thread is empty");
+            throw new StringIndexOutOfBoundsException("This topic is empty");
         }
         return message;
     }
@@ -114,7 +114,7 @@ public class DummyController {
     @ExceptionHandler(StringIndexOutOfBoundsException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public String StringIndexOutOfBoundsException(Exception e) {
-        return "This thread is empty";
+        return "This topic is empty";
     }
 
 
