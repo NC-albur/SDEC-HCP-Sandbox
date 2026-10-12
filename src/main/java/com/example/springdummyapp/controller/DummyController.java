@@ -3,16 +3,18 @@ package com.example.springdummyapp.controller;
 import com.example.springdummyapp.model.dao.Thread;
 import com.example.springdummyapp.model.dao.ThreadReference;
 import com.example.springdummyapp.model.request.CreateThreadRequest;
-import com.example.springdummyapp.model.response.CreateThreadSuccessResponse;
 import com.example.springdummyapp.service.ThreadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping(value = "v1/dummy")
@@ -21,12 +23,23 @@ public class DummyController {
 
     private final ThreadService threadService;
 
-//    @GetMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public String dummyGet(@PathVariable Long id) {
-//        Thread thread = threadService.getThreadById(id);
-//        return thread.getThreadName();
-//    }
+    @GetMapping("/id/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public String getByID(@PathVariable Long id) {
+        Thread thread = threadService.getThreadById(id);
+        return thread.getThreadName();
+    }
+
+    @GetMapping("/")
+    @ResponseStatus(HttpStatus.OK)
+    public List<String> getAll() {
+        Iterable<Thread> threads = threadService.getThreads();
+        List<String> names = new ArrayList<String>();
+        for (Thread t : threads) {
+            names.add(t.getId() + ": " + t.getThreadName());
+        }
+        return names;
+    }
 
     @GetMapping("/{threadReference}")
     @ResponseStatus(HttpStatus.OK)
@@ -75,14 +88,20 @@ public class DummyController {
         createThreadReference.setAssociatedCaseReference(request.associatedCaseReference());
 
         return threadService.saveThreadSuccessResponse(createThreadReference);
-
-
     }
+
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleDuplicateKeyException(Exception e) {
         return "Thread already exists";
     }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleFileNotFoundException(Exception e) {
+        return "Thread doesn't exist";
+    }
+
     @PutMapping("/UpdateThread/{threadReference}")
     @ResponseStatus(HttpStatus.OK)
     public String updateThread(@PathVariable String threadReference,@RequestBody CreateThreadRequest request){
@@ -100,6 +119,18 @@ public class DummyController {
             toUpdate.setAssociatedCaseReference(request.associatedCaseReference());
         }
         return threadService.saveThreadSuccessResponse(toUpdate)+"  updated";
+    }
+
+    @DeleteMapping("/deleteThread/{threadReference}")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteThread(@PathVariable String threadReference) {
+
+        ThreadReference toDelete = threadService.getThreadReferenceByThreadReference(threadReference);
+        if (toDelete == null) {
+            return "File Not Found";
+        }
+
+        return threadService.deleteThreadReference(toDelete);
     }
 
 

@@ -23,6 +23,10 @@ public class ThreadService {
         return threadRepository.getThreadById(id);
     }
 
+    public Iterable<Thread> getThreads() {
+        return threadRepository.findAll();
+    }
+
     public String getThreadWorkerNameByThreadName(String threadName) {
         return threadWorkerRepository.customQuery(threadName)
                 .getFirst();
@@ -31,6 +35,12 @@ public class ThreadService {
     public String saveThreadSuccessResponse (ThreadReference toAdd){
         threadReferenceRepository.save(toAdd);
         return toAdd.getThreadReference();
+    }
+
+    public String deleteThreadReference(ThreadReference toDelete) {
+        String reference = toDelete.getThreadReference();
+        threadReferenceRepository.delete(toDelete);
+        return reference;
     }
 
     public ThreadReference getThreadReferenceByThreadReference(String threadReference){
