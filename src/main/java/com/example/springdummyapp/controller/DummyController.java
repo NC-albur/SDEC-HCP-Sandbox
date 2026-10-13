@@ -34,7 +34,7 @@ public class DummyController {
     @ResponseStatus(HttpStatus.OK)
     public List<String> getAll() {
         Iterable<Thread> threads = threadService.getThreads();
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (Thread t : threads) {
             names.add(t.getId() + ": " + t.getThreadName());
         }
@@ -49,6 +49,23 @@ public class DummyController {
             throw new NoSuchElementException("Cannot find this thread");
         }
         return reference;
+    }
+
+    @GetMapping("/olderThan/{dateTime}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ThreadReference> getThreadReferencesOlderThan(
+            @PathVariable LocalDateTime dateTime
+            ){
+        return threadService.getThreadReferenceByCreatedDate(dateTime);
+    }
+
+    @GetMapping("/before/{before}/after/{after}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ThreadReference> getThreadReferencesBetweenTimes(
+            @PathVariable LocalDateTime before,
+            @PathVariable LocalDateTime after
+    ) {
+        return threadService.getThreadReferencesCreatedBetweenTimeStamps(before, after);
     }
 
     @ExceptionHandler(NoSuchElementException.class)

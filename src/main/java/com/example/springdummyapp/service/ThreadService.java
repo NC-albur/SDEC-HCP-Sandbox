@@ -9,6 +9,8 @@ import com.example.springdummyapp.repository.ThreadWorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,14 @@ public class ThreadService {
 
     public Iterable<Thread> getThreads() {
         return threadRepository.findAll();
+    }
+
+    public List<ThreadReference> getThreadReferenceByCreatedDate(LocalDateTime date) {
+        return threadReferenceRepository.getThreadReferencesCreatedBefore(date);
+    }
+
+    public List<ThreadReference> getThreadReferencesCreatedBetweenTimeStamps(LocalDateTime before, LocalDateTime after) {
+        return threadReferenceRepository.getThreadReferencesCreatedBetweenTimeStamps(before, after);
     }
 
     public String getThreadWorkerNameByThreadName(String threadName) {

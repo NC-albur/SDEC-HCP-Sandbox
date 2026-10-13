@@ -20,4 +20,9 @@ public class Thread {
 
     private String threadName;
     private Timestamp uploadedAt;
+
+    public Thread(String name, Timestamp time) {
+        this.threadName = name;
+        this.uploadedAt = time;
+    }
 }
