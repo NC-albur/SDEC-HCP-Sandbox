@@ -45,7 +45,9 @@ public class EventStreamService {
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+            if(response.statusCode() == 204){
+                throw new StringIndexOutOfBoundsException("This topic is empty");
+            }
             return response.body();
 
 

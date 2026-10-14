@@ -72,7 +72,7 @@ public class DummyController {
         createThreadReference.setThreadExpiryDate(threadExpiryDate);
         createThreadReference.setAssociatedCaseReference(request.associatedCaseReference());
 
-        return threadService.saveThreadSuccessResponse(createThreadReference);
+        return threadService.saveThreadSuccessResponse(createThreadReference,true);
 
 
     }
@@ -98,7 +98,7 @@ public class DummyController {
         if(request.associatedCaseReference()!=null) {
             toUpdate.setAssociatedCaseReference(request.associatedCaseReference());
         }
-        return threadService.saveThreadSuccessResponse(toUpdate)+"  updated";
+        return threadService.saveThreadSuccessResponse(toUpdate,false)+"  updated";
     }
 
     @GetMapping("/EventStream/ConsumeEvent")
