@@ -15,7 +15,7 @@ public interface ThreadWorkerRepository extends CrudRepository<ThreadWorker, Int
     List<ThreadWorker> findByThreadThreadName(String threadName);
 
     @Query("SELECT tw.caseWorkerName FROM ThreadWorker tw " +
-            "LEFT JOIN thread t on tw.thread.id = t.id " +
+            "LEFT JOIN Thread t on tw.thread.id = t.id " +
             "WHERE t.threadName = :threadName")
     List<String> customQuery(@Param("threadName") String threadName);
 }
