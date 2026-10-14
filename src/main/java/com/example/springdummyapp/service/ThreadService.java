@@ -1,6 +1,7 @@
 package com.example.springdummyapp.service;
 
 import com.example.springdummyapp.model.dao.Thread;
+import com.example.springdummyapp.model.dao.ThreadEvent;
 import com.example.springdummyapp.model.dao.ThreadReference;
 import com.example.springdummyapp.model.dao.ThreadWorker;
 import com.example.springdummyapp.repository.ThreadReferenceRepository;
@@ -8,12 +9,17 @@ import com.example.springdummyapp.repository.ThreadRepository;
 import com.example.springdummyapp.repository.ThreadWorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ThreadService {
+
+    private final EventStreamService eventStreamService;
 
     private final ThreadRepository threadRepository;
     private final ThreadWorkerRepository threadWorkerRepository;
@@ -28,8 +34,15 @@ public class ThreadService {
                 .getFirst();
     }
 
-    public String saveThreadSuccessResponse (ThreadReference toAdd){
+    public String saveThreadSuccessResponse (ThreadReference toAdd,boolean created) {
         threadReferenceRepository.save(toAdd);
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String,Object> jsonMap = new HashMap<>();
+        jsonMap.put("thread",toAdd);
+        jsonMap.put("message",toAdd.getThreadReference() + (created?" Created":" Updated"));
+        //ThreadEvent queueEvent = new ThreadEvent(created, toAdd.getThreadReference(),mapper.writeValueAsString(toAdd));
+        eventStreamService.SendMessageToTopic(mapper.writeValueAsString(jsonMap));
         return toAdd.getThreadReference();
     }
 
@@ -42,5 +55,9 @@ public class ThreadService {
                 .stream()
                 .map(ThreadWorker::getCaseWorkerName)
                 .collect(Collectors.joining());
+    }
+
+    public String getMessageFromSubscription(){
+        return eventStreamService.GetMessageFromSubscription();
     }
 }

@@ -1,9 +1,7 @@
 package com.example.springdummyapp.controller;
 
-import com.example.springdummyapp.model.dao.Thread;
 import com.example.springdummyapp.model.dao.ThreadReference;
 import com.example.springdummyapp.model.request.CreateThreadRequest;
-import com.example.springdummyapp.model.response.CreateThreadSuccessResponse;
 import com.example.springdummyapp.service.ThreadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
@@ -12,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 import java.util.NoSuchElementException;
-import java.util.regex.Pattern;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "v1/dummy")
@@ -33,14 +31,14 @@ public class DummyController {
     public ThreadReference getThreadReference(@PathVariable String threadReference) {
         ThreadReference reference = threadService.getThreadReferenceByThreadReference(threadReference);
         if (reference == null){
-            throw new NoSuchElementException("Cannot find this thread");
+            throw new NoSuchElementException();
         }
         return reference;
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String handleNoSuchElementException(Exception e) {
+    public String handleNoSuchElementException() {
         return "Cannot find this thread";
     }
 
@@ -74,7 +72,7 @@ public class DummyController {
         createThreadReference.setThreadExpiryDate(threadExpiryDate);
         createThreadReference.setAssociatedCaseReference(request.associatedCaseReference());
 
-        return threadService.saveThreadSuccessResponse(createThreadReference);
+        return threadService.saveThreadSuccessResponse(createThreadReference,true);
 
 
     }
@@ -83,6 +81,7 @@ public class DummyController {
     public String handleDuplicateKeyException(Exception e) {
         return "Thread already exists";
     }
+
     @PutMapping("/UpdateThread/{threadReference}")
     @ResponseStatus(HttpStatus.OK)
     public String updateThread(@PathVariable String threadReference,@RequestBody CreateThreadRequest request){
@@ -99,7 +98,23 @@ public class DummyController {
         if(request.associatedCaseReference()!=null) {
             toUpdate.setAssociatedCaseReference(request.associatedCaseReference());
         }
-        return threadService.saveThreadSuccessResponse(toUpdate)+"  updated";
+        return threadService.saveThreadSuccessResponse(toUpdate,false)+"  updated";
+    }
+
+    @GetMapping("/EventStream/ConsumeEvent")
+    @ResponseStatus(HttpStatus.OK)
+    public String getEventStreamMessage(){
+        String message = threadService.getMessageFromSubscription();
+        if (Objects.equals(message, "")){
+            throw new StringIndexOutOfBoundsException("This topic is empty");
+        }
+        return message;
+    }
+
+    @ExceptionHandler(StringIndexOutOfBoundsException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public String StringIndexOutOfBoundsException(Exception e) {
+        return "This topic is empty";
     }
 
 
