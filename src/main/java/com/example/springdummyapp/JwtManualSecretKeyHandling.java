@@ -6,8 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.*;
 
@@ -19,7 +17,6 @@ public class JwtManualSecretKeyHandling {
     // MDTP + HCP example
     void mdtp_hcp() {
         var entraJWT = jwtFromEntra();
-        // decodeJWTonly(entraJWT);
         var mdtpJWT = generateNewJWTUsingEntra(entraJWT);
         validateMDTPJWTInHCP(mdtpJWT);
     }
@@ -33,25 +30,6 @@ public class JwtManualSecretKeyHandling {
     JWTVerifier getVerifier() {
         return JWT.require(getAlgorithmFromVault()).build();
     }
-
-    // decode JWT WITHOUT verification
-/*    void decodeJWTonly(String token) {
-        String[] chunks = token.split("\\.");
-
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        String header = new String(decoder.decode(chunks[0]));
-        String payload = new String(decoder.decode(chunks[1]));
-
-        // serialize header and payload to dicts
-        var gson = new Gson();
-        Map<String, String> headerMap = gson.fromJson(header, new TypeToken<HashMap<String, String>>() {}.getType());
-        Map<String, String> payloadMap = gson.fromJson(payload, new TypeToken<HashMap<String, String>>() {}.getType());
-
-        // get issuer
-        // String issuer = payloadMap.get("iss");
-
-        System.out.println("header:\n" + headerMap); System.out.println("payload:\n" + payloadMap);
-    }*/
 
     // get jwt from Entra ID
     String jwtFromEntra() {
@@ -93,91 +71,4 @@ public class JwtManualSecretKeyHandling {
             System.out.println(e.getMessage());
         }
     }
-
-    // BASIC EXAMPLE
-    Algorithm algorithm = Algorithm.HMAC256("secret");
-    JWTVerifier verifier = JWT.require(algorithm)
-            .withIssuer("my name")
-            .build();
-
-    void JWTTest() {
-        String id = verifyJWT(createJWT());
-        System.out.println(id);
-    }
-
-    String createJWT() {
-        return JWT.create()
-                .withIssuer("my name")
-                .withSubject("a subject")
-                .withClaim("id", "1234")
-                .withIssuedAt(new Date())
-                .sign(algorithm);
-    }
-
-    String verifyJWT(String token) {
-        try {
-            DecodedJWT decodedJWT = verifier.verify(token);
-            Claim idClaim = decodedJWT.getClaim("id");
-            return idClaim.asString();
-        } catch (JWTVerificationException e) {
-            return e.getMessage();
-        }
-    }
-
-
-/*
-    void showcase() {
-        validator_secretKeyInHeader(setup());
-    }
-
-    String setup() {
-        String secret = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
-
-        // header with secret key included
-        Map<String, String> header = new HashMap<>();
-        header.put("alg","HS256");
-        header.put("typ","JWT");
-        header.put("secretKey", secret);
-
-        // payload
-        Map<String, String> payload = new HashMap<>();
-        payload.put("user", "John");
-        payload.put("password", "abcde");
-        payload.put("message", "hello world");
-
-        // set and return jwt
-        return Jwts.builder()
-                // add header
-                .header().empty().add(header).and()
-                // add payload
-                .claims(payload)
-                // sign with secret key
-                .signWith(
-                        Keys.hmacShaKeyFor(secret.getBytes()),
-                        Jwts.SIG.HS256
-                )
-                .compact();
-    }
-
-    static void validator_secretKeyInHeader(String token) {
-        var head = Jwts.parser()
-                .build()
-                .parseSignedClaims(token)
-                .getHeader();
-
-        String secretKey = (String) head.get("secretKey");
-
-        // decode payload
-        Claims payload = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        var message = payload.get("message");
-        System.out.println(message != null ? (String) message : "no message found");
-
-    }
-*/
-
 }

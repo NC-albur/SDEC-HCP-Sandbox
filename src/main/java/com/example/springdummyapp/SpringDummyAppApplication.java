@@ -20,8 +20,4 @@ public class SpringDummyAppApplication {
     static void mockMDTPAndHCPExample() {
         keyHandling.mdtp_hcp();
     }
-
-    static void basicExample() {
-        keyHandling.JWTTest();
-    }
 }
