@@ -1,14 +1,23 @@
 package com.example.springdummyapp;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 
 
 @SpringBootApplication
 public class SpringDummyAppApplication {
 
+    private static final JwtManualSecretKeyHandling keyHandling = new JwtManualSecretKeyHandling();
+
     static void main(String[] args) {
-        ApplicationContext ctx = SpringApplication.run(SpringDummyAppApplication.class, args);
+        verifyTokenUsingIssuerExample();
+    }
+
+    static void verifyTokenUsingIssuerExample() {
+        var v = new ValidateJWTWithIssuerPrototype();
+        v.demonstrate();
+    }
+
+    static void mockMDTPAndHCPExample() {
+        keyHandling.mdtp_hcp();
     }
 }
