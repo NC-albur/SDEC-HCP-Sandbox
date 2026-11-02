@@ -9,7 +9,12 @@ public class SpringDummyAppApplication {
     private static final JwtManualSecretKeyHandling keyHandling = new JwtManualSecretKeyHandling();
 
     static void main(String[] args) {
-        mockMDTPAndHCPExample();
+        verifyTokenUsingIssuerExample();
+    }
+
+    static void verifyTokenUsingIssuerExample() {
+        var v = new ValidateJWTWithIssuerPrototype();
+        v.demonstrate();
     }
 
     static void mockMDTPAndHCPExample() {

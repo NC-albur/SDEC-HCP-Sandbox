@@ -6,9 +6,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 public class JwtManualSecretKeyHandling {
     Algorithm entraAlgorithm = Algorithm.HMAC256("entra");
@@ -18,6 +19,7 @@ public class JwtManualSecretKeyHandling {
     // MDTP + HCP example
     void mdtp_hcp() {
         var entraJWT = jwtFromEntra();
+        // decodeJWTonly(entraJWT);
         var mdtpJWT = generateNewJWTUsingEntra(entraJWT);
         validateMDTPJWTInHCP(mdtpJWT);
     }
@@ -31,6 +33,25 @@ public class JwtManualSecretKeyHandling {
     JWTVerifier getVerifier() {
         return JWT.require(getAlgorithmFromVault()).build();
     }
+
+    // decode JWT WITHOUT verification
+/*    void decodeJWTonly(String token) {
+        String[] chunks = token.split("\\.");
+
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        String header = new String(decoder.decode(chunks[0]));
+        String payload = new String(decoder.decode(chunks[1]));
+
+        // serialize header and payload to dicts
+        var gson = new Gson();
+        Map<String, String> headerMap = gson.fromJson(header, new TypeToken<HashMap<String, String>>() {}.getType());
+        Map<String, String> payloadMap = gson.fromJson(payload, new TypeToken<HashMap<String, String>>() {}.getType());
+
+        // get issuer
+        // String issuer = payloadMap.get("iss");
+
+        System.out.println("header:\n" + headerMap); System.out.println("payload:\n" + payloadMap);
+    }*/
 
     // get jwt from Entra ID
     String jwtFromEntra() {
